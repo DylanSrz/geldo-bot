@@ -1,0 +1,25 @@
+# Entorno virtual
+venv/
+.venv/
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Variables de entorno — NUNCA subir al repo
+.env
+.env.*
+!.env.example
+
+# Base de datos local
+*.db
+
+# Editor
+.vscode/
+.idea/
+.claude/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db

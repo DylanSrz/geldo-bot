@@ -1,0 +1,41 @@
+name: Deploy to Oracle VM
+
+# En esta copia pública solo corre a mano: el bot se despliega desde el repositorio privado.
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          command_timeout: 30m
+          script: |
+            cd /home/geldo/GELDO
+
+            git stash
+            echo "Actualizando repositorio..."
+            git pull origin main
+
+            echo "Instalando dependencias..."
+            ./venv/bin/pip install -r requirements.txt --quiet
+
+            # SOLUCIÓN: Recargar la configuración del sistema
+            echo "Recargando configuraciones de servicios..."
+            sudo systemctl daemon-reload
+
+            echo "Reiniciando bot..."
+            # Es más eficiente usar restart que stop/start por separado
+            sudo systemctl restart geldo-bot.service
+
+            echo "Verificando estado..."
+            sudo systemctl status geldo-bot.service --no-pager
+
+            echo "Deploy terminado"
